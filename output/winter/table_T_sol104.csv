@@ -1,0 +1,24 @@
+Trace Algorithm
+Goverment/Crop,Rice,Maize,Sorghum,Sugar cane,Sunflower,Soybean,Sesame,Peanuts,vegetables,Cotton,Green folder,Fully grown Onions,Medical and Aromatic plants
+Cairo,0,0,1,0,0,0,0,0,0,0,0,0,0
+Alexandria,1,0,0,0,0,0,0,0,0,0,0,0,0
+Portsaid,0,0,1,0,0,0,0,0,0,0,0,0,0
+Suez,0,0,1,0,0,0,0,0,0,0,0,0,0
+Damietta,1,0,0,0,0,0,0,0,0,0,0,0,0
+Dakahlia,1,0,0,0,0,0,0,0,0,0,0,0,0
+Sharkia,1,0,0,0,0,0,0,0,0,0,0,0,0
+Quliubiya,0,0,1,0,0,0,0,0,0,0,0,0,0
+Kafrelsheikh,0,0,1,0,0,0,0,0,0,0,0,0,0
+Gharbia,0,0,1,0,0,0,0,0,0,0,0,0,0
+Monoufia,0,0,0,0,0,1,0,0,1,0,0,0,0
+Behaira,0,0,1,0,0,0,0,0,0,0,0,0,0
+Ismailia,0,0,1,0,0,0,0,0,0,0,0,0,0
+Giza,0,1,0,0,0,0,0,0,0,0,0,0,0
+Benisweif,0,0,0,1,0,0,0,0,0,0,0,0,0
+Fayoum,0,0,0,0,1,0,0,0,1,1,1,0,0
+Minya,0,1,1,0,0,0,0,0,0,0,0,0,0
+Assuit,0,0,1,0,0,0,0,0,0,0,0,0,0
+Sohag,0,0,0,1,0,0,1,1,1,0,0,0,0
+Qena,0,0,1,0,0,0,0,0,0,0,0,0,0
+Aswan,0,0,0,0,0,0,0,0,0,0,0,0,0
+Luxor,0,1,0,0,0,0,0,0,0,0,0,0,0

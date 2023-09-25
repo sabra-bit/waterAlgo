@@ -1,0 +1,24 @@
+Trace Algorithm
+Goverment/Crop,Wheat,Barley,Forestation Alfalfa,Sustains Alfalfa,vegetables,Medical and Aromatic plants,fully grown Beans,lentils,Fenugreek,chickpeas,Lupine,sugar Beet,Fully grown Onions,Garlic,Lfax,Others
+Cairo,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Alexandria,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Portsaid,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Suez,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Damietta,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Dakahlia,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sharkia,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Quliubiya,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0
+Kafrelsheikh,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gharbia,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Monoufia,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Behaira,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Ismailia,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Giza,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Benisweif,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Fayoum,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0
+Minya,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Assuit,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0
+Sohag,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0
+Qena,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Aswan,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Luxor,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
