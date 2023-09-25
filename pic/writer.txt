@@ -1,0 +1,583 @@
+Algorithm 1 – SC | call_algorithm()
+
+Input: x:production_target_percentage, y:number_of_cities_to_skip, z:Sesseon_name
+Output: Best_Crops_Farming_soultions
+
+FUNCTION call_algo(x,y,z):
+    Tool_obj.current_seasson <- z
+    Tool_obj.Read_Data_Set()
+    Tool_obj.preprocessing()
+    Tool_obj.Algo(x,y)
+    Tool_obj.Total()
+ENDFUNCTION
+
+Description 
+	main function take argument from user to run algorithm function on passed input
+	
+Algorithm 2 – SC | Read_Data_Set()
+Input: Excel_crops_data_Set
+Output: Processed_data_set
+
+FUNCTION Read_Data_Set(self):
+        total_crop_count <- 0
+        dataset_location <- os.path.dirname(os.path.abspath(__file__))+'\data_final.xls'
+        work_book <- xlrd.open_workbook(dataset_location)
+        sheet <- work_book.sheet_by_index(0)
+        row_count <- sheet.nrows
+        col_count <- sheet.ncols
+        Readed_water <- []
+        Readed_area <- []
+        Readed_prod <- []
+        Readed_city <- []
+        Readed_name <- []
+        Readed_visited <- []
+        Readed_piroty <- []
+        readed_seasoon <- []
+        readed_region <- []
+        for cur_row in range(1, row_count): # escape first col [fields names]
+            IF sheet.cell(cur_row, 6).value =  current_seasson:
+                Readed_water.append(sheet.cell(cur_row, 2).value)
+                Readed_area.append(sheet.cell(cur_row, 1).value)
+                Readed_prod.append(sheet.cell(cur_row, 3).value)
+                Readed_city.append(sheet.cell(cur_row, 0).value)
+                Readed_name.append(sheet.cell(cur_row, 4).value)
+                Readed_visited.append(0)
+                Readed_piroty.append(sheet.cell(cur_row, 5).value)
+                readed_seasoon.append(sheet.cell(cur_row, 6).value)
+                readed_region.append(sheet.cell(cur_row, 7).value)
+            ENDIF
+        #test sort
+        ENDFOR
+        crop_count <- []
+        for i in Readed_name:
+            IF i not in crop_count:
+                crop_count.append(i)
+            ENDIF
+        ENDFOR
+         total_crop_count <- len(crop_count)-1
+        p,y,z,h,o,q,x,l,m <-  sort_piroty(Readed_water,Readed_area,Readed_prod,Readed_city,Readed_name,Readed_visited,Readed_piroty,readed_seasoon,readed_region)
+        # assine to dataset
+         dataset['water'] <- x
+         dataset['area'] <- y
+         dataset['prod'] <- z
+         dataset['city'] <- h
+         dataset['name'] <- o
+         dataset['visited'] <- q
+         dataset['piroty'] <- p
+         dataset['season'] <- l
+         dataset['region_name'] <- m
+    ENDFUNCTION
+	
+Description 
+	Function to open excel dataset that have crops data with its piriorty and read all data then move it to temporary memory to do rest of algorithm functions
+	
+
+
+Algorithm 3 – SC | preprocessing()
+Input: temporary memory crops dataset varible
+Output: sorted_data_set
+
+FUNCTION preprocessing(self):
+         output_dataset <- {"water":[],"area":[],"prod":[],"city":[],"name":[],"visited":[],"rank":[],"season":[],"region_name":[]}
+        Crop_name <- 'X'
+        Counter <- 0
+        table <- PrettyTable()
+        native_water <- [];native_area <- [];native_prod <- [];native_city <- [];native_name <- [];native_region <- []
+        for i in  dataset['name']:
+            IF i != Crop_name: # new crop
+                # sort_table(table)
+                Crop_name <- i
+                table <- PrettyTable()
+                table.field_names <- ["water", "area","prod","city","name","visited","region_name"]
+                table.add_row([ dataset['water'][Counter], dataset['area'][Counter], dataset['prod'][Counter], dataset['city'][Counter],Crop_name, dataset['visited'][Counter],self.dataset['region_name'][Counter]])
+                #solution2
+                 sort_table_solution_2(native_water,native_area,native_prod,native_city,native_name, dataset['visited'],native_region)
+                native_water <- [];native_area <- [];native_prod <- [];native_city <- [];native_name <- []
+                native_water.append( dataset['water'][Counter])
+                native_area.append( dataset['area'][Counter]) 
+                native_prod.append( dataset['prod'][Counter]) 
+                native_city.append( dataset['city'][Counter]) 
+                native_name.append( dataset['name'][Counter])
+                native_region.append( dataset['region_name'][Counter])
+            ELSE:
+                table.add_row([ dataset['water'][Counter], dataset['area'][Counter], dataset['prod'][Counter], dataset['city'][Counter],Crop_name, dataset['visited'][Counter],self.dataset['region_name'][Counter]])
+                native_water.append( dataset['water'][Counter])
+                native_area.append( dataset['area'][Counter]) 
+                native_prod.append( dataset['prod'][Counter]) 
+                native_city.append( dataset['city'][Counter]) 
+                native_name.append( dataset['name'][Counter]) 
+                native_region.append( dataset['region_name'][Counter])
+            ENDIF
+            Counter += 1    
+        # output_dataset <-  dataset
+        #a,b,c,d <- [list(v) for v in zip(*sorted(zip(dataset['water'],dataset['area'],dataset['prod'],dataset['city'])))]
+    ENDFUNCTION
+	
+	Description 
+	Function to open preprocess readed data and sort it based on piriorty and minmum water used to farm crops
+	
+	Algorithm 3 – SC | Algorithm()
+	Input: sorted_data_set
+	Output: farming_solution
+	
+	FUNCTION Algo(self,perc,co):
+        #begine Algorithm 
+        #take target percentage
+        percentage <- perc
+         current_algo_target_percentage <- perc
+         city_count <- co
+        counter <- 0
+        current_crop_name <- 'X'
+        current_crop_production <- 0
+        current_crop_target <- 0
+        new_achived_production <- 0
+        normal_flag <- 0
+        target_flag <- 0
+        while counter < len( output_dataset['name']):
+            IF current_crop_name !=  output_dataset['name'][counter]:
+                # Get Current crop prop
+                current_crop_name <-  output_dataset['name'][counter]
+                current_crop_production <-  get_crop_old_production(current_crop_name)
+                current_crop_target <- (percentage * current_crop_production)
+                current_city <-  output_dataset['city'][counter]
+                normal_flag <- 0
+                target_flag <- 0
+                new_achived_production <- 0 # Editable values
+                #test
+                # output_dataset['visited'][counter] <- 1
+                #edit2
+                '''
+                try:
+                    prime_cost_per_fadan <- ( output_dataset['prod'][counter]/ output_dataset['area'][counter])
+                    prime_water_per_fadan <- ( output_dataset['water'][counter]/ output_dataset['area'][counter])
+                except:
+                    prime_cost_per_fadan <- 0
+                    prime_water_per_fadan <- 0
+                    '''
+                # zero city
+                IF new_achived_production < current_crop_target:
+                    new_achived_production +=  output_dataset['prod'][counter]
+                    IF new_achived_production < current_crop_target:
+                        IF  output_dataset['water'][counter] != 0 AND  output_dataset['area'][counter] != 0 AND  output_dataset['visited'][counter] = 0:
+                            prime_cost_per_fadan <- ( output_dataset['prod'][counter]/ output_dataset['area'][counter])
+                            prime_water_per_fadan <- ( output_dataset['water'][counter]/ output_dataset['area'][counter])
+                            # output_dataset['prod'][counter] <- 0
+                            # output_dataset['water'][counter] <- 0
+                            # output_dataset['area'][counter] <- 0
+                             output_dataset['visited'][counter] <- 1
+                            #edit2
+                            new_achived_production <-  search(current_crop_name,current_city,new_achived_production,current_crop_target,counter,prime_cost_per_fadan,prime_water_per_fadan)
+                    ENDIF
+                        ENDIF
+                ELSE: #edit2
+                     output_dataset['prod'][counter] <- 0
+                    pass
+                ENDIF
+                IF new_achived_production >= current_crop_production :
+                    IF normal_flag != 1:
+                         achivement_normal_count +=1
+                        normal_flag <- 1
+                ENDIF
+                    ENDIF
+                IF new_achived_production = current_crop_target AND target_flag != 1:
+                     achivement_target_count += 1
+                    #edit
+                    # achivement_normal_count -= 1
+                    target_flag <- 1
+                ENDIF
+            ELSE:
+                '''
+                try:
+                    prime_cost_per_fadan <- ( output_dataset['prod'][counter]/ output_dataset['area'][counter])
+                    prime_water_per_fadan <- ( output_dataset['water'][counter]/ output_dataset['area'][counter])
+                except:
+                    prime_cost_per_fadan <- 0
+                    prime_water_per_fadan <- 0
+                '''
+                current_city <-  output_dataset['city'][counter]
+                # output_dataset['visited'][counter] <- 1
+                IF new_achived_production < current_crop_target:
+                    new_achived_production +=  output_dataset['prod'][counter]
+                    IF new_achived_production < current_crop_target:
+                        IF  output_dataset['water'][counter] != 0 AND  output_dataset['area'][counter] != 0 AND  output_dataset['visited'][counter] = 0:
+                            prime_cost_per_fadan <- ( output_dataset['prod'][counter]/ output_dataset['area'][counter])
+                            prime_water_per_fadan <- ( output_dataset['water'][counter]/ output_dataset['area'][counter])
+                            # output_dataset['prod'][counter] <- 0
+                            # output_dataset['water'][counter] <- 0
+                            # output_dataset['area'][counter] <- 0
+                             output_dataset['visited'][counter] <- 1
+                            #edit2
+                            new_achived_production <-  search(current_crop_name,current_city,new_achived_production,current_crop_target,counter,prime_cost_per_fadan,prime_water_per_fadan)
+                    ENDIF
+                        ENDIF
+                ELSE: #edit2
+                     output_dataset['prod'][counter] <- 0
+                    pass
+                ENDIF
+                IF new_achived_production >= current_crop_production :
+                        IF normal_flag != 1:
+                             achivement_normal_count +=1
+                            normal_flag <- 1
+                ENDIF
+                        ENDIF
+                IF new_achived_production = current_crop_target AND target_flag != 1:
+                     achivement_target_count += 1
+                    #edit
+                    # achivement_normal_count -= 1
+                    target_flag <- 1
+            ENDIF
+                ENDIF
+            counter += 1
+        ENDWHILE
+         check_lost()
+        # check_lost()
+    ENDFUNCTION
+	
+	
+	Description 
+	Main Algorithm function to access data set then list all sorted crops , for each crop will check if that crop reached target percentage if true algorithm will go to next crop not will path crop to search function
+	with city name to search other crops for unvisited place to farm this crop to reach target percentage. at the end will call another function to check crops that not reached its normal production percentage
+	
+	Algorithm 4 – SC | Search()
+	Input: crop_name,city,achived_production,target,prime_city_index,prime_cost_per_fadan,prime_water_per_fadan 
+	Output: crop_new_production
+	
+	FUNCTION search(self,crop_name,city,achived_production,target,prime_city_index,prime_cost_per_fadan,prime_water_per_fadan):
+        counter <- 0
+        target_flag <- 0
+        while counter < len( output_dataset['name']):
+            # search in area not in same crop
+            IF  output_dataset['name'][counter] != crop_name:
+            # get the target citys
+                IF  output_dataset['city'][counter] = city AND  output_dataset['visited'][counter] = 0 AND  output_dataset['rank'][counter] >  city_count  AND  output_dataset['area'][counter] != 0:
+                    # get target city prop
+                    target_city_water <-  output_dataset['water'][counter]
+                    target_city_area <-  output_dataset['area'][counter]
+                    #prime_cost_per_fadan <- ( output_dataset['prod'][prime_city_index]/ output_dataset['area'][prime_city_index])
+                    #prime_water_per_fadan <- ( output_dataset['water'][prime_city_index]/ output_dataset['area'][prime_city_index])
+                    current_cost_per_fadan <- ( output_dataset['prod'][counter]/ output_dataset['area'][counter])
+                    #calculation
+                    achived_production += (target_city_area * prime_cost_per_fadan)
+                    #update values 
+                     output_dataset['area'][prime_city_index] += target_city_area
+                     output_dataset['water'][prime_city_index] += (target_city_area*prime_water_per_fadan)
+                        # edit
+                     output_dataset['prod'][prime_city_index] += (target_city_area * prime_cost_per_fadan)
+                    #save for IF achived > target 
+                              ENDIF
+                          ENDFOR
+                    temp_water <-  output_dataset['water'][counter]
+                    temp_area <-  output_dataset['area'][counter]
+                    temp_prod <-  output_dataset['prod'][counter]
+                    #replace target city with zeros
+                     output_dataset['area'][counter] <- 0
+                     output_dataset['water'][counter] <- 0
+                     output_dataset['visited'][counter] <- 1
+                     output_dataset['visited'][prime_city_index] <- 1
+                    #edit
+                     output_dataset['prod'][counter] <- 0
+                    #check target
+                    IF achived_production >= target:
+                        # output_dataset['water'][prime_city_index] <- achived_production
+                        # check_diffrence 
+                                 ENDIF
+                        IF achived_production > target:
+                            diff <- achived_production - target
+                             ENDIF
+                            achived_production -= diff
+                                                   ENDIF
+                            reverse_area <- (diff/prime_cost_per_fadan) #prime
+                                             ENDIF
+                            used_area <- temp_area - reverse_area
+                            #----- revese----
+                             output_dataset['area'][prime_city_index] -= target_city_area
+                             output_dataset['water'][prime_city_index] -= (target_city_area*prime_water_per_fadan)
+                             output_dataset['area'][prime_city_index] += used_area
+                             output_dataset['water'][prime_city_index] += (used_area * prime_water_per_fadan)
+                            #edit
+                            #edit
+                             output_dataset['prod'][prime_city_index] -= (target_city_area * prime_cost_per_fadan)
+                             output_dataset['prod'][prime_city_index] += (used_area * prime_cost_per_fadan)
+                             output_dataset['area'][counter] <- reverse_area
+                             output_dataset['water'][counter] <- temp_water
+                            #edit 10/11/21
+                             output_dataset['prod'][counter] <- temp_prod
+                             output_dataset['visited'][counter] <- 0
+                             output_dataset['prod'][counter] <- (reverse_area * current_cost_per_fadan)
+                             output_dataset['visited'][prime_city_index] <- 1
+                            #edit
+                        ENDIF
+                        break
+                        RETURN achived_production
+            ENDIF
+                ENDIF
+                    ENDIF
+            counter += 1
+        ENDWHILE
+        RETURN achived_production
+    ENDFUNCTION
+	
+	
+	Description 
+		main algorithm function that take crop prime information to search for unvisited area to take its area to farm this crop.
+		function begine to search for all crops in dataset and check for unvisited cities and must city area and water value not equal zero also city rank greater than city skip number,
+		if founded this city , searched crop will take this area from founded city and will increse it's production and will remove this area and production from founded city,
+		if new crop production greater than target production so algorithm will calculate the diffrence in area and reverse it to founded city to make sure that any crop can use this
+		reversed area and at the end function will return new calculated production for passed crop
+		
+	Algorithm 4 – SC | check_lost()
+	Input: final_data_set 
+	Output: unreached target crops
+	
+	FUNCTION check_lost(self):
+        current_crop_name <- 'X'
+        current_crop_production <- 0
+        neg_prod <- []
+        counter <- 0
+        while counter < len( output_dataset['name']):
+            IF current_crop_name !=  output_dataset['name'][counter]:
+                current_crop_name <-  output_dataset['name'][counter]
+                old_p <-  get_crop_old_production(current_crop_name)
+                new_p <-  get_crop_new_prod(current_crop_name)
+                diff <- new_p - old_p
+                 ENDIF
+                IF diff < 0 :
+                    neg_prod.append(current_crop_name)
+            ENDIF
+                ENDIF
+            counter += 1
+        ENDWHILE
+        OUTPUT neg_prod
+         Algo_lost( current_algo_target_percentage,neg_prod)
+	
+	Description
+		after alogrithm run main functions so this function will check if there is crops un reached the noraml target or not.
+		this function take the diffrence between the same crop production before and after applying algorithm if the diffrence is negative so crop didn't reached normal production 
+		and will append it to list to research area for it 
+		
+	
+	Algorithm 4 – SC | Total()
+	Input: processed_data_set 
+	Output: solution
+	
+	FUNCTION Total(self):
+        Total_water <- 0; Total_area <- 0; Total_prod <- 0
+        Total_water_test <- 0; Total_area_test <- 0; Total_prod_test <- 0
+        for water in  dataset['water']:
+            Total_water += water
+        ENDFOR
+        for area in  dataset['area']:
+            Total_area += area
+        ENDFOR
+        for prod in  dataset['prod']:
+            Total_prod += prod
+        ENDFOR
+        counter <- 0
+        while counter < len( output_dataset['name']):
+            Total_water_test +=  output_dataset['water'][counter]
+            Total_prod_test +=  output_dataset['prod'][counter]
+            IF  output_dataset['visited'][counter] = 1 AND  output_dataset['water'][counter] != 0:
+                Total_area_test +=  output_dataset['area'][counter]
+            ENDIF
+            IF  output_dataset['visited'][counter] = 0 AND  output_dataset['area'][counter] != 0 AND  output_dataset['water'][counter] != 0:
+                OUTPUT '----------- Fuck Here ----------'
+                OUTPUT  output_dataset['city'][counter]
+                OUTPUT '----------- Fuck Here ----------'
+            #ELSE:
+            #    OUTPUT 'City: ', output_dataset['city'][counter],' Area: ', output_dataset['area'][counter]
+            ENDIF
+            counter += 1
+        # add to final results
+        ENDWHILE
+        before_results <- [Total_water,Total_area,Total_prod]
+          ENDFOR
+        after_results <- [Total_water_test,Total_area_test,Total_prod_test]
+        for x in before_results:
+             b_results.append(x)
+        ENDFOR
+        for x in after_results:
+             f_results.append(x)
+        ENDFOR
+         b_results_list.append(before_results)
+                                     ENDFOR
+         f_results_list.append(after_results)
+        # add to final solution 
+         final_solutions_details.append( output_dataset)
+        # add count of achivments
+        calc_normal_achive <- abs( achivement_target_count- achivement_normal_count)
+        calc_upnormal <- abs( total_crop_count-( achivement_target_count + calc_normal_achive))
+        temp_achivments <- [ achivement_target_count,calc_normal_achive,calc_upnormal, current_algo_target_percentage, city_count]
+         crop_achivements.append(temp_achivments)
+         achivement_target_count <- 0
+         achivement_normal_count <- 0
+        '''
+        # add count of achivments
+        calc_upnormal <- abs( total_crop_count-( achivement_target_count +  achivement_normal_count))
+        temp_achivments <- [ achivement_target_count, achivement_normal_count,calc_upnormal, current_algo_target_percentage, city_count]
+         crop_achivements.append(temp_achivments)
+         achivement_target_count <- 0
+         achivement_normal_count <- 0
+        '''
+    ENDFUNCTION
+	
+	Description:
+		main function responsible for calculating total of area , water used and production  before and after using algorithm then add solution to memory varible 
+		
+	
+	Algorithm 5 – SC | sort_piroty()
+	Input: unsorted dataset 
+	Output: sorted dataset by piroty
+	
+	FUNCTION sort_piroty(self,x,y,z,h,o,q,p,l,m):
+        #p,y,z,h,o,q,x <- [list(v) for v in zip(*sorted(zip(p,y,z,h,o,q,x)))]
+                                  ENDFOR
+        try:
+            p,y,z,h,o,q,x,l,m <- [list(v) for v in zip(*sorted(zip(p,y,z,h,o,q,x,l,m)))]
+                                         ENDFOR
+            RETURN p,y,z,h,o,q,x,l,m
+        except:
+            pass
+    ENDFUNCTION
+	
+	Description:
+		main preprocess function take crops dataset and based of piriorty field zip python method will sort it based on selected field
+	
+	Algorithm 5 – SC | sort()
+	Input: unsorted dataset 
+	Output: sorted dataset by minmum water farmed for crop
+	
+	FUNCTION sort_table_solution_2(self,x,y,z,h,j,v,l):
+        try:
+            #prepare diviation
+            i <- 0
+            while i < len(x):
+                IF x[i] != 0 OR y[i] != 0:
+                    x[i] <- x[i]/y[i]
+                ELSE:
+                    x[i] <- 9999999
+                    y[i] <- 9999999
+                ENDIF
+                i += 1
+            #sort by division
+            ENDWHILE
+            x,y,z,h,j,l <- [list(v) for v in zip(*sorted(zip(x,y,z,h,j,l)))]
+                                   ENDFOR
+            # restore real values
+            i <- 0
+            while i < len(x):
+                IF x[i] = 9999999:
+                    x[i] <- 0
+                    y[i] <- 0
+                ENDIF
+                IF x[i] != 0 OR y[i] != 0:
+                    x[i] <- x[i] * y[i]
+                ENDIF
+                i += 1
+            #assian sorted to test dataset
+            #output_dataset <- {"water":[],"area":[],"prod":[],"city":[],"name":[],"visited":[]}
+            ENDWHILE
+            rank_list <- [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
+            seasson_list <- [ current_seasson]*22
+             output_dataset['water'] += x
+             output_dataset['area'] += y
+             output_dataset['prod'] += z
+             output_dataset['city'] += h
+             output_dataset['name'] += j
+             output_dataset['visited'] += v
+             output_dataset['rank'] += rank_list
+             output_dataset['seasson'] += seasson_list
+             output_dataset['region_name'] += l
+        except:
+            pass
+    ENDFUNCTION
+	
+	Description:
+		preprocess function will read all dataset and will sort all crops based on mimum water need to farm crops and this achived by applying math formula (Total_water)/(Total_area)
+		
+	
+	
+	Algorithm 6 – SC | draw_final_results()
+	Input: final solution 
+	Output: printed solution
+	
+	FUNCTION draw_final_results():
+    table <- PrettyTable()
+    table.field_names <- ['Before','After','Diff']
+                                            ENDIF
+                            ENDFOR
+    counter <- 0
+    seperator_counter <- 0
+    solution_number <- 1
+    while counter < len(Tool_obj.b_results):
+        diff <- 0
+         ENDIF
+        IF seperator_counter = 3:
+            table.add_row(['----------','--------------','-------------'])
+            solution_number += 1
+            seperator_counter <- 0
+        ENDIF
+        IF seperator_counter = 2:
+            diff <- Tool_obj.f_results[counter] - Tool_obj.b_results[counter]
+             ENDIF
+        ELSE:
+            diff <- Tool_obj.b_results[counter] - Tool_obj.f_results[counter]
+        ENDIF
+             ENDIF
+        table.add_row([round(Tool_obj.b_results[counter],2),round(Tool_obj.f_results[counter],2),round(diff,2)])
+                                                                                                        ENDIF
+        counter += 1
+        seperator_counter += 1
+    ENDWHILE
+    OUTPUT table
+    OUTPUT 'Solution no: ',solution_number
+ENDFUNCTION
+
+Description:
+	function responsible for print final solution that contain total water, area, production and the diffrence between it and old values before applaying algorithm 
+	then filter this solution based on this diffrence that must total production after applaying algorithm greater than before and total of water use less than or equal old value,
+	also used area less than or equal old used area
+
+
+Algorithm 7 – SC | process_final_results()
+	Input: final solution 
+	Output: filterd solution
+	
+FUNCTION process_final_results():
+    OUTPUT '''
+        -------- Solution Filter stage ---------
+    ''')
+    counter <- 0
+    selected_solution_index <- []
+    temp_solutions <- Tool_obj.f_results_list
+    temp_prim <- Tool_obj.b_results_list
+    temp_achivments <- Tool_obj.crop_achivements
+    while counter < len(temp_solutions):
+        solution <- temp_solutions[counter]
+        prim <- temp_prim[counter]
+        IF prim[0] - solution[0] > 1 AND solution[2] - prim[2] > 1:
+            selected_solution_index.append(counter)
+        ENDIF
+        counter += 1
+    ENDWHILE
+    OUTPUT '''-------- Selected Solution ---------'''
+    table <- PrettyTable()
+    table.field_names <- ['Sol Index','Water','Area','Production','Target Achivement %','Normal Achivement %','solution target Percentage','city skip']
+    for x in selected_solution_index:
+        OUTPUT 'Sol No : ',x
+        sol <- temp_solutions[x]
+        ach <- temp_achivments[x]
+        percentage <- round((((ach[0]*ach[3])+(ach[1]*1)+(ach[2]*0))/(Tool_obj.total_crop_count*ach[3]))*100,2)
+        n_percentage <- round((((ach[0]*1)+(ach[1]*1)+(ach[2]*0))/(Tool_obj.total_crop_count*1))*100,2)
+        #----- draw table ------
+        table.add_row(['sol :'+str(x),round(sol[0],2),round(sol[1],2),round(sol[2],2),percentage,n_percentage,ach[3],ach[4]])
+        OUTPUT sol
+        OUTPUT ach
+    ENDFOR
+    table.sortby <- 'Target Achivement %'
+    table.reversesort <- True
+    OUTPUT table
+    details_solution(temp_solutions,selected_solution_index)
+ENDFUNCTION
+
+Description:
+	function displays filterd solution with it's target and normal achivement percentage and solution city skip number 
